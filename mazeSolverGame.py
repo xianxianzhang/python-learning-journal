@@ -1,14 +1,16 @@
-import  os
+import os
+import sys
+
+# Increase recursion limit to handle larger mazes
+sys.setrecursionlimit(2000)
 
 def display_maze(maze):
     """
     Display Maze in 2D Matrix format for Visualization.
     Parameters:
         maze (list): 2D list of ints where 1 represents a wall and 0 represents a valid path.
-
     Return:
         No Return
-
     """
     temp = maze[:]
     os.system('clear')
@@ -16,13 +18,11 @@ def display_maze(maze):
     draw = ""
     for row in temp:
         for item in row:
-            item = str(item).replace("1",str(1)+'   ')
-            item = str(item).replace("0", str(0)+'   ')
-
+            item = str(item).replace("1", str(1) + '   ')
+            item = str(item).replace("0", str(0) + '   ')
             draw += item
         draw += "\n"
     print(draw)
-
 
 def solve_maze(maze, x, y, path):
     """
@@ -37,31 +37,25 @@ def solve_maze(maze, x, y, path):
     Returns:
     bool: True if a path exists, False otherwise.
     """
-    # Check if current position is out of bounds or is a wall
-    if x < 0 or x >= len(maze) or y < 0 or y >= len(maze[0]) or maze[x][y] == 1:
+    if x < 0 or x >= len(maze) or y < 0 or y >= len(maze[0]) or maze[x][y] != 0:
         return False
 
-    # Check if the current position is the exit (bottom-right corner)
     if (x, y) == (len(maze) - 1, len(maze[0]) - 1):
         path.append((x, y))
         return True
 
-    # Mark the current cell as visited (to avoid revisiting)
     maze[x][y] = 2
     path.append((x, y))
 
-    # Recursively explore neighbors: down, right, up, left
     if (solve_maze(maze, x + 1, y, path) or  # Move down
         solve_maze(maze, x, y + 1, path) or  # Move right
         solve_maze(maze, x - 1, y, path) or  # Move up
         solve_maze(maze, x, y - 1, path)):   # Move left
         return True
 
-    # Backtrack: Unmark the current cell and remove it from the path
     path.pop()
     maze[x][y] = 0
     return False
-
 
 def find_maze_path(maze):
     """
@@ -79,20 +73,104 @@ def find_maze_path(maze):
     else:
         return None
 
+def run_test_cases():
+    """
+    Function to run and display results for various test cases of the maze solver.
+    It uses the display_maze and find_maze_path functions to solve and visualize different mazes.
+    """
+    test_cases = [
+        # Test Case 1: Basic Test Case
+        [
+            [0, 1, 0, 0],
+            [0, 1, 0, 1],
+            [0, 0, 0, 1],
+            [1, 1, 0, 0]
+        ],
 
-# Sample maze: 0 represents a path, 1 represents a wall.
-maze = [
-    [0, 1, 0, 0],
-    [0, 1, 0, 1],
-    [0, 0, 0, 1],
-    [1, 1, 0, 0]
-]
-display_maze(maze)
-# Finding the path from start to end
-path = find_maze_path(maze)
+        # Test Case 2: Fully Blocked Maze
+         [
+             [0, 1, 1],
+             [0, 1, 1],
+             [0, 1, 0]
+         ],
 
-# Display the result
-if path:
-    print("Path found:", path)
-else:
-    print("No path found.")
+        # # Test Case 3: No Walls (All Open)
+         [
+             [0, 0, 0],
+             [0, 0, 0],
+             [0, 0, 0]
+         ],
+
+        # # Test Case 4: Edge Case (1x1)
+         [
+             [0]
+         ],
+
+        # # Test Case 5: Large Maze (10x10)
+         [
+             [0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+             [0, 0, 0, 0, 1, 0, 1, 0, 0, 1],
+             [1, 1, 1, 0, 1, 0, 1, 0, 1, 1],
+             [1, 0, 0, 0, 1, 0, 1, 0, 1, 0],
+             [1, 1, 1, 0, 1, 0, 1, 0, 1, 0],
+             [1, 0, 1, 0, 0, 0, 1, 0, 1, 0],
+             [1, 0, 1, 1, 1, 1, 1, 0, 0, 0],
+             [1, 0, 0, 0, 0, 0, 0, 1, 1, 0],
+             [1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
+             [1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+         ],
+
+        # # Test Case 6: Multiple Paths
+         [
+             [0, 0, 0, 1],
+             [1, 1, 0, 1],
+             [0, 0, 0, 0],
+             [1, 1, 1, 0]
+         ],
+
+        # # Test Case 7: Corner Case: Exit Surrounded by Walls
+         [
+             [0, 0, 1, 1, 1],
+             [1, 0, 1, 0, 1],
+             [1, 0, 0, 0, 1],
+             [1, 1, 1, 0, 1],
+             [1, 1, 1, 0, 0]
+         ],
+
+        # # Test Case 8: Dead-End Maze
+         [
+             [0, 1, 1, 0],
+             [0, 0, 1, 0],
+             [1, 0, 1, 0],
+             [0, 0, 0, 0]
+         ],
+
+        # # Test Case 9: Start Surrounded by Walls
+         [
+             [0, 1, 1],
+             [1, 1, 1],
+             [1, 1, 0]
+         ],
+
+        # # Test Case 10: Maze with Loops (Cyclic Paths)
+         [
+             [0, 1, 0, 0, 0],
+             [0, 1, 0, 1, 0],
+             [0, 0, 0, 1, 0],
+             [1, 1, 0, 1, 0],
+             [0, 0, 0, 0, 0]
+         ]
+    ]
+
+    for i, maze in enumerate(test_cases, start=1):
+        print(f"\nTest Case {i}:")
+        display_maze(maze)
+        
+        path = find_maze_path(maze)
+        if path:
+            print("Path found:", path)
+        else:
+            print("No path found.")
+
+# Run all test cases
+run_test_cases()
