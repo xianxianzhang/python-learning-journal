@@ -37,22 +37,28 @@ def solve_maze(maze, x, y, path):
     Returns:
     bool: True if a path exists, False otherwise.
     """
+
+    # Check if the current position is out of bounds or is a wall (1)
     if x < 0 or x >= len(maze) or y < 0 or y >= len(maze[0]) or maze[x][y] != 0:
         return False
-
+    
+    # Check if the exit has been reached
     if (x, y) == (len(maze) - 1, len(maze[0]) - 1):
         path.append((x, y))
         return True
-
+    
+    # Mark the current cell as visited by marking it as part of the path (set to 2)
     maze[x][y] = 2
     path.append((x, y))
 
+    # Explore all possible directions (down, right, up, left)
     if (solve_maze(maze, x + 1, y, path) or  # Move down
         solve_maze(maze, x, y + 1, path) or  # Move right
         solve_maze(maze, x - 1, y, path) or  # Move up
         solve_maze(maze, x, y - 1, path)):   # Move left
         return True
 
+    # Backtrack: Unmark the current cell and remove it from the path
     path.pop()
     maze[x][y] = 0
     return False
@@ -174,3 +180,6 @@ def run_test_cases():
 
 # Run all test cases
 run_test_cases()
+
+
+#
