@@ -1,82 +1,98 @@
-import os
-import time
+import  os
 
-# Define the maze
-maze = [
-    "#########",
-    "#S      #",
-    "# ### # #",
-    "#   # # #",
-    "### # ###",
-    "#       #",
-    "### ### #",
-    "#     E #",
-    "#########"
-]
-
-# Convert maze into a 2D list for easier manipulation
-maze = [list(row) for row in maze]
-
-# Player's start and end positions
-start = (1, 1)  # 'S'
-end = (7, 7)  # 'E'
-
-# Display the maze
 def display_maze(maze):
-    os.system('cls' if os.name == 'nt' else 'clear')  # Clear the terminal
-    for row in maze:
-        print(''.join(row))
+    """
+    Display Maze in 2D Matrix format for Visualization.
+    Parameters:
+        maze (list): 2D list of ints where 1 represents a wall and 0 represents a valid path.
 
-# Depth-First Search (DFS) algorithm for solving the maze
-def solve_maze(maze, pos, visited):
-    # Check if we have reached the end
-    if pos == end:
+    Return:
+        No Return
+
+    """
+    temp = maze[:]
+    os.system('clear')
+
+    draw = ""
+    for row in temp:
+        for item in row:
+            item = str(item).replace("1",str(1)+'   ')
+            item = str(item).replace("0", str(0)+'   ')
+
+            draw += item
+        draw += "\n"
+    print(draw)
+
+
+def solve_maze(maze, x, y, path):
+    """
+    Recursively find a path from the current position (x, y) to the exit in the maze.
+    
+    Parameters:
+    maze (list): 2D list of ints where 1 represents a wall and 0 represents a valid path.
+    x (int): Current row position in the maze.
+    y (int): Current column position in the maze.
+    path (list): A list of tuples representing the path taken.
+
+    Returns:
+    bool: True if a path exists, False otherwise.
+    """
+    # Check if current position is out of bounds or is a wall
+    if x < 0 or x >= len(maze) or y < 0 or y >= len(maze[0]) or maze[x][y] == 1:
+        return False
+
+    # Check if the current position is the exit (bottom-right corner)
+    if (x, y) == (len(maze) - 1, len(maze[0]) - 1):
+        path.append((x, y))
         return True
 
-    # Mark the current position as visited
-    x, y = pos
-    visited.add(pos)
+    # Mark the current cell as visited (to avoid revisiting)
+    maze[x][y] = 2
+    path.append((x, y))
 
-    # Possible directions to move: Up, Down, Left, Right
-    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    # Recursively explore neighbors: down, right, up, left
+    if (solve_maze(maze, x + 1, y, path) or  # Move down
+        solve_maze(maze, x, y + 1, path) or  # Move right
+        solve_maze(maze, x - 1, y, path) or  # Move up
+        solve_maze(maze, x, y - 1, path)):   # Move left
+        return True
 
-    # Try all four directions
-    for direction in directions:
-        new_x, new_y = x + direction[0], y + direction[1]
-
-        # Check if the new position is valid and not visited
-        if (0 <= new_x < len(maze)) and (0 <= new_y < len(maze[0])) and maze[new_x][new_y] in (' ', 'E') and (new_x, new_y) not in visited:
-            # Mark the current path with a dot (.)
-            maze[new_x][new_y] = '.'
-
-            # Display the maze with the current move
-            display_maze(maze)
-            time.sleep(0.2)  # Slow down for better visualization
-
-            # Recursively solve from the new position
-            if solve_maze(maze, (new_x, new_y), visited):
-                return True
-
-            # If not a valid path, backtrack (remove the dot)
-            if maze[new_x][new_y] != 'E':
-                maze[new_x][new_y] = ' '
-
+    # Backtrack: Unmark the current cell and remove it from the path
+    path.pop()
+    maze[x][y] = 0
     return False
 
-# Start the maze solver game
-def play_maze_solver_game():
-    print("Starting Maze Solver...")
-    display_maze(maze)
 
-    # Solve the maze using DFS
-    if solve_maze(maze, start, set()):
-        print("Maze solved!")
+def find_maze_path(maze):
+    """
+    Wrapper function to start the maze solving process and return the path if one exists.
+
+    Parameters:
+    maze (list): 2D list of ints representing the maze.
+
+    Returns:
+    list: List of tuples representing the path if one exists, otherwise None.
+    """
+    path = []
+    if solve_maze(maze, 0, 0, path):
+        return path
     else:
-        print("No solution found!")
-
-# Start the game
-play_maze_solver_game()
+        return None
 
 
+# Sample maze: 0 represents a path, 1 represents a wall.
+maze = [
+    [0, 1, 0, 0],
+    [0, 1, 0, 1],
+    [0, 0, 0, 1],
+    [1, 1, 0, 0]
+]
+display_maze(maze)
+# Finding the path from start to end
+path = find_maze_path(maze)
 
-
+# Display the result
+if path:
+    print("Path found:", path)
+else:
+    print("No path found.")
